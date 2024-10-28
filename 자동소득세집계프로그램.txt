@@ -1,0 +1,49 @@
+import pandas as pd
+
+#df에 test.xlsx 불러오기
+df = pd.read_excel("D:/시스템폴더/바탕화면/예제/자동소득세집계프로그램/test.xlsx")
+
+#지급건수 컬럼 추가하고 주민번호 삽입
+df['지급건수'] = df['주민번호']
+
+#주민번호에 '-' 제거
+df['주민번호'] = df['주민번호'].str.replace('-','')
+
+#적요, 납부자이름, 주민번호를 기준으로 지급액 합, 소득세 합, 지방소득세 합, 지급건수(주민번호) 갯수 그룹화
+df2 = df.groupby(['적요','납부자이름','주민번호']).agg({'지급액':'sum','소득세':'sum','지방소득세':'sum','지급건수':'count'}).reset_index()
+
+#내보내기
+df2.to_excel("D:/시스템폴더/바탕화면/예제/자동소득세집계프로그램/result.xlsx")
+
+df2
+#새로 만든 데이터프레임 정보
+#df2.info()
+
+
+#적요별 소득세 그래프 그리기
+import matplotlib.pyplot as plt
+
+#한글 사용하기
+from matplotlib import font_manager, rc
+font_path='C:/Windows/Fonts/malgun.ttf'
+font=font_manager.FontProperties(fname=font_path).get_name()
+rc('font', family=font)
+
+plt.figure(figsize=(5,3))
+plt.title('적요별 소득세 총액 현황')
+plt.bar(df2['적요'], df2['소득세'])
+plt.plot(df2['적요'], df2['소득세'])
+plt.ylim(0,1500000)
+plt.show()
+
+
+
+#적요별 지방소득세 그래프 그리기
+import matplotlib.pyplot as plt2
+
+plt2.figure(figsize=(5,3))
+plt2.title('적요별 지방소득세 총액 현황')
+plt2.bar(df2['적요'], df2['지방소득세'])
+plt2.plot(df2['적요'], df2['지방소득세'])
+plt2.ylim(0,150000)
+plt2.show()
